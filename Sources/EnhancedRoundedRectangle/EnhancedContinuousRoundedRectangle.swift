@@ -9,6 +9,7 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
 
     internal let cornerRadius: CornerRadius
 
+    // swiftlint:disable:next function_body_length
     internal func path(in rect: CGRect) -> Path {
         var path = Path()
 
