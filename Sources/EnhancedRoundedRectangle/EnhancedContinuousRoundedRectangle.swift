@@ -9,22 +9,46 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
 
     internal let cornerRadius: CornerRadius
 
+    private let offset: CGFloat
+
+    internal init(cornerRadius: CornerRadius, offset: CGFloat) {
+        self.cornerRadius = cornerRadius
+        self.offset = offset
+    }
+
+    private func rectFor(rect: CGRect) -> CGRect {
+        let inset = -self.offset
+        return rect.insetBy(dx: inset, dy: inset)
+    }
+
+    private func cornerRadiusFor(rect: CGRect) -> CornerRadius {
+        self.cornerRadius
+            .minimum(
+                for: rect,
+                scaleFactor: Self.ellipseCoefficient
+            )
+            .offset(by: self.offset)
+    }
+
     // swiftlint:disable:next function_body_length
     internal func path(in rect: CGRect) -> Path {
         var path = Path()
 
-        let cornerRadius = self.cornerRadius.minimum(
-            for: rect,
-            scaleFactor: Self.ellipseCoefficient
-        )
+        let cornerRadius = self.cornerRadiusFor(rect: rect)
+        let rect = self.rectFor(rect: rect)
+
+        let x = rect.origin.x
+        let y = rect.origin.y
+        let width = rect.size.width
+        let height = rect.size.height
 
         let coefficients: [CGFloat] = [
             0.04641, 0.08715, 0.13357, 0.16296, 0.21505, 0.290086, 0.32461, 0.37801, 0.44576, 0.6074, 0.77037
         ]
 
         let topRightP1 = CGPoint(
-            x: rect.width - cornerRadius.topRight * Self.ellipseCoefficient,
-            y: rect.origin.y
+            x: x + width - cornerRadius.topRight * Self.ellipseCoefficient,
+            y: y + 0.0
         )
         let topRightP1CP1 = CGPoint(
             x: topRightP1.x + cornerRadius.topRight * coefficients[8],
@@ -48,8 +72,8 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
             y: topRightP2.y + cornerRadius.topRight * coefficients[4]
         )
 
-        let topRightP3 = CGPoint(x:
-            topRightP2.x + cornerRadius.topRight * coefficients[7],
+        let topRightP3 = CGPoint(
+            x: topRightP2.x + cornerRadius.topRight * coefficients[7],
             y: topRightP2.y + cornerRadius.topRight * coefficients[7]
         )
         let topRightP3CP1 = CGPoint(
@@ -67,8 +91,8 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
         )
 
         let bottomRightP1 = CGPoint(
-            x: rect.width,
-            y: rect.height - cornerRadius.bottomRight * Self.ellipseCoefficient
+            x: x + width,
+            y: y + height - cornerRadius.bottomRight * Self.ellipseCoefficient
         )
         let bottomRightP1CP1 = CGPoint(
             x: bottomRightP1.x,
@@ -111,8 +135,8 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
         )
 
         let bottomLeftP1 = CGPoint(
-            x: rect.origin.x + cornerRadius.bottomLeft * Self.ellipseCoefficient,
-            y: rect.height
+            x: x + cornerRadius.bottomLeft * Self.ellipseCoefficient,
+            y: y + height
         )
         let bottomLeftP1CP1 = CGPoint(
             x: bottomLeftP1.x - cornerRadius.bottomLeft * coefficients[8],
@@ -155,8 +179,8 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
         )
 
         let topLeftP1 = CGPoint(
-            x: rect.origin.x,
-            y: rect.origin.y + cornerRadius.topLeft * Self.ellipseCoefficient
+            x: x + 0.0,
+            y: y + cornerRadius.topLeft * Self.ellipseCoefficient
         )
         let topLeftP1CP1 = CGPoint(
             x: topLeftP1.x,
@@ -199,8 +223,8 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
         )
 
         path.move(to: CGPoint(
-            x: rect.origin.x + cornerRadius.topLeft * Self.ellipseCoefficient,
-            y: rect.origin.y
+            x: x + cornerRadius.topLeft * Self.ellipseCoefficient,
+            y: y + 0.0
         ))
 
         // Top right
@@ -231,6 +255,17 @@ internal struct EnhancedContinuousRoundedRectangle: Shape {
     }
 }
 
+extension EnhancedContinuousRoundedRectangle: InsettableShape {
+    typealias InsetShape = Self
+
+    func inset(by amount: CGFloat) -> Self {
+        Self(
+            cornerRadius: self.cornerRadius,
+            offset: self.offset - amount
+        )
+    }
+}
+
 struct EnhancedContinuousRoundedRectangle_Previews: PreviewProvider {
     static var previews: some View {
         EnhancedCircularRoundedRectangle(
@@ -239,7 +274,8 @@ struct EnhancedContinuousRoundedRectangle_Previews: PreviewProvider {
                 topRight: 20.0,
                 bottomRight: 30.0,
                 bottomLeft: 40.0
-            )
+            ),
+            offset: 0.0
         )
             .fill(Color.gray)
             .frame(width: 100.0, height: 100.0)
