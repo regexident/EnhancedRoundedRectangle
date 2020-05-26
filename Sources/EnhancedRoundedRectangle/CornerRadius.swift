@@ -31,10 +31,19 @@ public struct CornerRadius {
         )
     }
 
+    internal func offset(by offset: CGFloat) -> Self {
+        Self(
+            topLeft: max(0.0, self.topLeft + offset),
+            topRight: max(0.0, self.topRight + offset),
+            bottomRight: max(0.0, self.bottomRight + offset),
+            bottomLeft: max(0.0, self.bottomLeft + offset)
+        )
+    }
+
     internal func minimum(
         for rect: CGRect,
         scaleFactor: CGFloat = 1.0
-    ) -> CornerRadius {
+    ) -> Self {
         func calculateMinimumRadius(
             width: CGFloat,
             height: CGFloat,
