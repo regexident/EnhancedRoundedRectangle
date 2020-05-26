@@ -46,8 +46,8 @@ public struct CornerRadius {
             return minRadius / scaleFactor
         }
 
-        let w = rect.width
-        let h = rect.height
+        let width = rect.width
+        let height = rect.height
 
         // Avoid division by zero:
         let epsilon: CGFloat = .leastNormalMagnitude
@@ -58,23 +58,23 @@ public struct CornerRadius {
         let left = (self.bottomLeft + self.topLeft) + epsilon
 
         let minimumTopRight = calculateMinimumRadius(
-            width: w / top * self.topRight,
-            height: h / right * self.topRight,
+            width: width / top * self.topRight,
+            height: height / right * self.topRight,
             radius: self.topRight
         )
         let minimumBottomRight = calculateMinimumRadius(
-            width: w / bottom * self.bottomRight,
-            height: h / right * self.bottomRight,
+            width: width / bottom * self.bottomRight,
+            height: height / right * self.bottomRight,
             radius: self.bottomRight
         )
         let minimumBottomLeft = calculateMinimumRadius(
-            width: w / bottom * self.bottomLeft,
-            height: h / left * self.bottomLeft,
+            width: width / bottom * self.bottomLeft,
+            height: height / left * self.bottomLeft,
             radius: self.bottomLeft
         )
         let minimumTopLeft = calculateMinimumRadius(
-            width: w / top * self.topLeft,
-            height: h / left * self.topLeft,
+            width: width / top * self.topLeft,
+            height: height / left * self.topLeft,
             radius: self.topLeft
         )
 
