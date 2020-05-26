@@ -7,28 +7,44 @@ import SwiftUI
 internal struct EnhancedCircularRoundedRectangle: Shape {
     internal let cornerRadius: CornerRadius
 
+    private let offset: CGFloat
+
+    internal init(cornerRadius: CornerRadius, offset: CGFloat) {
+        self.cornerRadius = cornerRadius
+        self.offset = offset
+    }
+
+    private func rectFor(rect: CGRect) -> CGRect {
+        let inset = -self.offset
+        return rect.insetBy(dx: inset, dy: inset)
+    }
+
+    private func cornerRadiusFor(rect: CGRect) -> CornerRadius {
+        self.cornerRadius
+            .minimum(for: rect)
+            .offset(by: self.offset)
+    }
+
     // swiftlint:disable:next function_body_length
     internal func path(in rect: CGRect) -> Path {
         var path = Path()
 
+        let cornerRadius = self.cornerRadiusFor(rect: rect)
+        let rect = self.rectFor(rect: rect)
+
+        let x = rect.origin.x
+        let y = rect.origin.y
         let width = rect.size.width
         let height = rect.size.height
 
-        let cornerRadius = self.cornerRadius.minimum(for: rect)
-
-        path.move(to: CGPoint(
-            x: width * 0.5,
-            y: 0.0
-        ))
-
         path.addLine(to: CGPoint(
-            x: width - cornerRadius.topRight,
-            y: 0.0
+            x: x + width - cornerRadius.topRight,
+            y: y + 0.0
         ))
         path.addArc(
             center: CGPoint(
-                x: width - cornerRadius.topRight,
-                y: cornerRadius.topRight
+                x: x + width - cornerRadius.topRight,
+                y: y + cornerRadius.topRight
             ),
             radius: cornerRadius.topRight,
             startAngle: Angle(degrees: -90.0),
@@ -37,13 +53,13 @@ internal struct EnhancedCircularRoundedRectangle: Shape {
         )
 
         path.addLine(to: CGPoint(
-            x: width,
-            y: height - cornerRadius.bottomRight
+            x: x + width,
+            y: y + height - cornerRadius.bottomRight
         ))
         path.addArc(
             center: CGPoint(
-                x: width - cornerRadius.bottomRight,
-                y: height - cornerRadius.bottomRight
+                x: x + width - cornerRadius.bottomRight,
+                y: y + height - cornerRadius.bottomRight
             ),
             radius: cornerRadius.bottomRight,
             startAngle: Angle(degrees: 0.0),
@@ -52,13 +68,13 @@ internal struct EnhancedCircularRoundedRectangle: Shape {
         )
 
         path.addLine(to: CGPoint(
-            x: cornerRadius.bottomLeft,
-            y: height
+            x: x + cornerRadius.bottomLeft,
+            y: y + height
         ))
         path.addArc(
             center: CGPoint(
-                x: cornerRadius.bottomLeft,
-                y: height - cornerRadius.bottomLeft
+                x: x + cornerRadius.bottomLeft,
+                y: y + height - cornerRadius.bottomLeft
             ),
             radius: cornerRadius.bottomLeft,
             startAngle: Angle(degrees: 90.0),
@@ -67,13 +83,13 @@ internal struct EnhancedCircularRoundedRectangle: Shape {
         )
 
         path.addLine(to: CGPoint(
-            x: 0.0,
-            y: cornerRadius.topLeft
+            x: x + 0.0,
+            y: y + cornerRadius.topLeft
         ))
         path.addArc(
             center: CGPoint(
-                x: cornerRadius.topLeft,
-                y: cornerRadius.topLeft
+                x: x + cornerRadius.topLeft,
+                y: y + cornerRadius.topLeft
             ),
             radius: cornerRadius.topLeft,
             startAngle: Angle(degrees: 180.0),
@@ -81,7 +97,20 @@ internal struct EnhancedCircularRoundedRectangle: Shape {
             clockwise: false
         )
 
+        path.closeSubpath()
+        
         return path
+    }
+}
+
+extension EnhancedCircularRoundedRectangle: InsettableShape {
+    typealias InsetShape = Self
+
+    func inset(by amount: CGFloat) -> Self {
+        Self(
+            cornerRadius: self.cornerRadius,
+            offset: self.offset - amount
+        )
     }
 }
 
@@ -93,7 +122,8 @@ struct EnhancedCircularRoundedRectangle_Previews: PreviewProvider {
                 topRight: 20.0,
                 bottomRight: 30.0,
                 bottomLeft: 40.0
-            )
+            ),
+            offset: 0.0
         )
             .fill(Color.gray)
             .frame(width: 100.0, height: 100.0)
