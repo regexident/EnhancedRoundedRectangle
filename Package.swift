@@ -20,6 +20,11 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(
+            name: "SnapshotTesting",
+            url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
+            .revision("4d9e7447dc5ce3b1ad3757cbf2d4387bf8e35934")
+        ),
     ],
     targets: [
         .target(
@@ -31,6 +36,7 @@ let package = Package(
             name: "EnhancedRoundedRectangleTests",
             dependencies: [
                 "EnhancedRoundedRectangle",
+                "SnapshotTesting",
             ]
         ),
     ]
