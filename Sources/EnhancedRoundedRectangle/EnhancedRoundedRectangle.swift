@@ -8,12 +8,27 @@ public struct EnhancedRoundedRectangle: Shape {
     public let cornerRadius: CornerRadius
     public let style: RoundedCornerStyle
 
+    internal let offset: CGFloat
+
     public init(
         cornerRadius: CornerRadius,
         style: RoundedCornerStyle = .circular
     ) {
+        self.init(
+            cornerRadius: cornerRadius,
+            style: style,
+            offset: 0.0
+        )
+    }
+
+    internal init(
+        cornerRadius: CornerRadius,
+        style: RoundedCornerStyle,
+        offset: CGFloat
+    ) {
         self.cornerRadius = cornerRadius
         self.style = style
+        self.offset = offset
     }
 
     public func path(in rect: CGRect) -> Path {
@@ -22,12 +37,33 @@ public struct EnhancedRoundedRectangle: Shape {
 
         switch style {
         case .circular:
-            return Circular(cornerRadius: self.cornerRadius).path(in: rect)
+            return Circular(
+                cornerRadius: self.cornerRadius,
+                offset: self.offset
+            ).path(in: rect)
         case .continuous:
-            return Continuous(cornerRadius: self.cornerRadius).path(in: rect)
+            return Continuous(
+                cornerRadius: self.cornerRadius,
+                offset: self.offset
+            ).path(in: rect)
         @unknown default:
-            return Circular(cornerRadius: self.cornerRadius).path(in: rect)
+            return Circular(
+                cornerRadius: self.cornerRadius,
+                offset: self.offset
+            ).path(in: rect)
         }
+    }
+}
+
+extension EnhancedRoundedRectangle: InsettableShape {
+    public typealias InsetShape = Self
+
+    public func inset(by amount: CGFloat) -> Self {
+        Self(
+            cornerRadius: self.cornerRadius,
+            style: self.style,
+            offset: self.offset - amount
+        )
     }
 }
 
