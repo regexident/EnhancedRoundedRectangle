@@ -31,7 +31,7 @@ public struct CornerRadius {
         )
     }
 
-    internal func offset(by offset: CGFloat) -> Self {
+    public func offset(by offset: CGFloat) -> Self {
         Self(
             topLeft: max(0.0, self.topLeft + offset),
             topRight: max(0.0, self.topRight + offset),
